@@ -1,0 +1,8 @@
+[workspace]
+resolver = "2"
+
+members = ["aoc-2023-*"]
+
+[workspace.dependencies]
+nom = "7.1.3"
+
