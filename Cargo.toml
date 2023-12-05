@@ -4,5 +4,6 @@ resolver = "2"
 members = ["aoc-2023-*"]
 
 [workspace.dependencies]
+clap = { version = "4.4.11", features = ["derive"] }
 nom = "7.1.3"
 
