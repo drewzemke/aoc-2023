@@ -1,3 +1,6 @@
+pub mod puzzle02a;
+pub mod puzzle02b;
+
 pub mod game {
     #[derive(Debug)]
     pub struct Game {

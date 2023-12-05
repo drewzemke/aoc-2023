@@ -1,5 +1,5 @@
-pub mod part_a;
-pub mod part_b;
+pub mod puzzle01a;
+pub mod puzzle01b;
 
 pub fn find_digits(s: &str) -> Vec<u32> {
     let mut digits = vec![];

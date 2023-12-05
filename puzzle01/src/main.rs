@@ -1,5 +1,5 @@
-use aoc_2023_01::{part_a::Puzzle01a, part_b::Puzzle01b};
-use aoc_common::puzzle::Puzzle;
+use common::puzzle::Puzzle;
+use puzzle01::{puzzle01a::Puzzle01a, puzzle01b::Puzzle01b};
 
 fn main() {
     let input = include_str!("../data/input");
@@ -13,4 +13,8 @@ struct Puzzle01 {}
 impl Puzzle for Puzzle01 {
     type PartA = Puzzle01a;
     type PartB = Puzzle01b;
+
+    fn name() -> &'static str {
+        "01"
+    }
 }

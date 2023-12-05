@@ -51,35 +51,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "aoc-2023-01"
-version = "0.1.0"
-dependencies = [
- "aoc-common",
- "clap",
-]
-
-[[package]]
-name = "aoc-2023-02"
-version = "0.1.0"
-dependencies = [
- "nom",
-]
-
-[[package]]
-name = "aoc-2023-03"
-version = "0.1.0"
-dependencies = [
- "nom",
-]
-
-[[package]]
-name = "aoc-common"
-version = "0.1.0"
-dependencies = [
- "clap",
-]
-
-[[package]]
 name = "clap"
 version = "4.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -126,6 +97,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "acbf1af155f9b9ef647e42cdc158db4b64a1b61f743629225fde6f3e0be2a7c7"
 
 [[package]]
+name = "common"
+version = "0.1.0"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -160,6 +138,30 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39278fbbf5fb4f646ce651690877f89d1c5811a3d4acb27700c1cb3cdb78fd3b"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "puzzle01"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "common",
+]
+
+[[package]]
+name = "puzzle02"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "nom",
+]
+
+[[package]]
+name = "puzzle03"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "nom",
 ]
 
 [[package]]

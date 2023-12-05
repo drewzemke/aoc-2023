@@ -1,12 +1,11 @@
 use crate::find_digits;
-use aoc_common::puzzle::PuzzlePart;
+use common::puzzle::PuzzlePart;
 
 pub struct Puzzle01b {}
 
 impl PuzzlePart for Puzzle01b {
-    fn description() -> String {
+    fn description() -> &'static str {
         "Sum the two digit numbers formed from the first and last numerical _or word_ digits in each line."
-            .into()
     }
 
     fn solve(input: &str) -> String {
