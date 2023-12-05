@@ -141,6 +141,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "puzzle00"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "nom",
+]
+
+[[package]]
 name = "puzzle01"
 version = "0.1.0"
 dependencies = [
