@@ -47,7 +47,7 @@ impl From<Vec<SchematicLine>> for SchematicGraph {
         let tagged_nodes: Vec<(SchematicNode, usize, Range<usize>)> = lines
             .into_iter()
             .enumerate()
-            .flat_map(|(line_num, line)| line.0.into_iter().map(move |element| (element, line_num)))
+            .flat_map(|(line_num, line)| line.into_spans().map(move |element| (element, line_num)))
             .enumerate()
             .map(|(index, (span, line_num))| {
                 (
@@ -62,27 +62,22 @@ impl From<Vec<SchematicLine>> for SchematicGraph {
         let nodes: Vec<SchematicNode> = tagged_nodes
             .iter()
             .map(|(node, line_num, range)| {
-                let same_line_nodes_ids: Vec<_> = tagged_nodes
+                let neighbor_ids: Vec<_> = tagged_nodes
                     .iter()
-                    .filter(|(_, other_line_num, _)| line_num == other_line_num)
-                    .filter(|(_, _, other_range)| {
-                        range.start == other_range.end || other_range.start == range.end
+                    .filter(|(_, other_line_num, other_range)| {
+                        if line_num == other_line_num {
+                            // check for adjacent nodes on the same line
+                            range.start == other_range.end || other_range.start == range.end
+                        } else if line_num.abs_diff(*other_line_num) == 1 {
+                            // check on lines above/below current line
+                            let expanded_range = other_range.start.max(1) - 1..other_range.end + 1;
+                            range.start < expanded_range.end && expanded_range.start < range.end
+                        } else {
+                            false
+                        }
                     })
                     .map(|(node, _, _)| node.id)
                     .collect();
-
-                let mut above_or_below_nodes: Vec<_> = tagged_nodes
-                    .iter()
-                    .filter(|(_, other_line_num, _)| line_num.abs_diff(*other_line_num) == 1)
-                    .filter(|(_, _, other_range)| {
-                        let expanded_range = other_range.start.max(1) - 1..other_range.end + 1;
-                        range.start < expanded_range.end && expanded_range.start < range.end
-                    })
-                    .map(|(node, _, _)| node.id)
-                    .collect();
-
-                let mut neighbor_ids = same_line_nodes_ids;
-                neighbor_ids.append(&mut above_or_below_nodes);
 
                 SchematicNode {
                     id: node.id,

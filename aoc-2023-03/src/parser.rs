@@ -8,7 +8,7 @@ use nom::{
 };
 
 #[derive(Debug)]
-pub struct SchematicLine(pub Vec<ElementSpan>);
+pub struct SchematicLine(Vec<ElementSpan>);
 
 impl SchematicLine {
     pub fn parse_from_str(input: &str) -> SchematicLine {
@@ -30,7 +30,12 @@ impl SchematicLine {
 
         SchematicLine(elements)
     }
+
+    pub fn into_spans(self) -> impl Iterator<Item = ElementSpan> {
+        self.0.into_iter()
+    }
 }
+
 fn parse_element(input: &str) -> IResult<&str, Option<Element>> {
     alt((
         map(parse_symbol, |c| Some(Element::Symbol(c))),
