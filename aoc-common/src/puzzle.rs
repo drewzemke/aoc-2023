@@ -16,7 +16,12 @@ struct PuzzleArgs {
 }
 
 pub trait PuzzlePart {
+    /// A description of the value(s) computed for this puzzle,
+    /// just for the sake of more meaningful output.
     fn description() -> String;
+
+    /// Do all of the work necessary to transform the input text into
+    /// the solution text.
     fn solve(input: &str) -> String;
 }
 
@@ -24,14 +29,12 @@ pub trait Puzzle {
     type PartA: PuzzlePart;
     type PartB: PuzzlePart;
 
-    fn run() {
+    /// Based on command line args, this executes the solver for one or both
+    /// parts of a day's puzzles, using either the primary input or the example input.
+    fn run(input: &str, example: &str) {
         let args = PuzzleArgs::parse();
 
-        let input = if args.use_example {
-            include_str!("../data/example")
-        } else {
-            include_str!("../data/input")
-        };
+        let input = if args.use_example { example } else { input };
 
         match args.part {
             Some(PuzzlePartName::A) => Self::process::<Self::PartA>("A", input),

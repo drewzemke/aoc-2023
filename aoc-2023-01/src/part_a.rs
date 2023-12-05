@@ -1,4 +1,4 @@
-use crate::common::PuzzlePart;
+use aoc_common::puzzle::PuzzlePart;
 
 pub struct Puzzle01a {}
 

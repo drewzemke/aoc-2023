@@ -54,6 +54,7 @@ dependencies = [
 name = "aoc-2023-01"
 version = "0.1.0"
 dependencies = [
+ "aoc-common",
  "clap",
 ]
 
@@ -69,6 +70,13 @@ name = "aoc-2023-03"
 version = "0.1.0"
 dependencies = [
  "nom",
+]
+
+[[package]]
+name = "aoc-common"
+version = "0.1.0"
+dependencies = [
+ "clap",
 ]
 
 [[package]]
