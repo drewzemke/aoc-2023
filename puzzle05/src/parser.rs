@@ -1,0 +1,161 @@
+use crate::{Map, MapFragment, MapSet};
+
+impl MapFragment {
+    /// Assumes that input is a single line consisting of three numbers separated by whitespace.
+    pub fn parse_from_str(input: &str) -> Self {
+        let mut number_strs = input.split_whitespace();
+
+        let dest_offset = number_strs.next().unwrap().parse::<u64>().unwrap();
+        let source_start = number_strs.next().unwrap().parse::<u64>().unwrap();
+        let source_length = number_strs.next().unwrap().parse::<u64>().unwrap();
+
+        Self {
+            source: (source_start..source_start + source_length),
+            dest_offset,
+        }
+    }
+}
+
+impl Map {
+    /// Assumes the input is a set of lines, each of which consists of three numbers.
+    #[allow(dead_code)]
+    fn parse_from_str(input: &str) -> Self {
+        let fragments = input.lines().map(MapFragment::parse_from_str).collect();
+        Self(fragments)
+    }
+}
+
+impl MapSet {
+    /// Assumes the input contains the prefix "seeds: " followed by a list of whitespace-separated values.
+    fn parse_seeds_line(input: &str) -> Vec<u64> {
+        input
+            .strip_prefix("seeds: ")
+            .unwrap()
+            .split_whitespace()
+            .map(|s| s.parse::<u64>().unwrap())
+            .collect()
+    }
+
+    /// Assumes that the input is in the form of the entire input for this file:
+    /// - starts with a "seed: " line
+    /// - remainder consists of blocks each with a header line, the rest of which describes a map
+    pub fn parse_from_str(input: &str) -> Self {
+        let mut lines = input.lines();
+        let seeds = MapSet::parse_seeds_line(lines.next().unwrap());
+
+        // skip the next empty line
+        let lines = lines.skip(1);
+
+        let mut current_map_frags: Vec<MapFragment> = vec![];
+        let mut maps: Vec<Map> = vec![];
+
+        // TODO: try using itertools->chunks
+        for line in lines {
+            // if we hit a whitespace line, it's the end of this block, so add the map
+            // we're working on to the list
+            if line.trim().is_empty() {
+                maps.push(Map(current_map_frags));
+                current_map_frags = vec![];
+                continue;
+            }
+
+            // ignore lines that don't start with digits (ie. the header lines)
+            if line.trim().chars().next().unwrap().is_alphabetic() {
+                continue;
+            }
+
+            // otherwise parse a map fragment
+            current_map_frags.push(MapFragment::parse_from_str(line));
+        }
+        maps.push(Map(current_map_frags));
+
+        Self { seeds, maps }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{Map, MapFragment, MapSet};
+
+    #[test]
+    fn test_parse_fragment() {
+        let input = "50 98 2";
+
+        assert_eq!(
+            MapFragment::parse_from_str(input),
+            MapFragment {
+                source: (98..100),
+                dest_offset: 50,
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_map() {
+        let input = r"50 98 2 
+        52 50 48";
+
+        assert_eq!(
+            Map::parse_from_str(input),
+            Map(vec![
+                MapFragment {
+                    source: (98..100),
+                    dest_offset: 50,
+                },
+                MapFragment {
+                    source: (50..98),
+                    dest_offset: 52,
+                }
+            ])
+        );
+    }
+
+    #[test]
+    fn test_parse_seeds() {
+        let input = "seeds: 79 14 55 13";
+
+        assert_eq!(MapSet::parse_seeds_line(input), vec![79, 14, 55, 13]);
+    }
+
+    #[test]
+    fn test_parse_map_set() {
+        let input = r"seeds: 79 14 55 13
+
+            seed-to-soil map:
+            50 98 2
+            52 50 48
+
+            soil-to-fertilizer map:
+            0 15 37
+            37 52 2";
+
+        assert_eq!(
+            MapSet::parse_from_str(input),
+            MapSet {
+                seeds: vec![79, 14, 55, 13],
+                maps: vec![
+                    Map(vec![
+                        MapFragment {
+                            source: (98..100),
+                            dest_offset: 50,
+                        },
+                        MapFragment {
+                            source: (50..98),
+                            dest_offset: 52,
+                        }
+                    ]),
+                    Map(vec![
+                        MapFragment {
+                            source: (15..52),
+                            dest_offset: 0,
+                        },
+                        MapFragment {
+                            source: (52..54),
+                            dest_offset: 37,
+                        }
+                    ]),
+                ]
+            }
+        );
+    }
+}
