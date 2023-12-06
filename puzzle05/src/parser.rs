@@ -11,10 +11,7 @@ impl MapFragment {
         let source_start = number_strs.next().unwrap().parse::<u64>().unwrap();
         let source_length = number_strs.next().unwrap().parse::<u64>().unwrap();
 
-        Self {
-            source: (source_start..source_start + source_length),
-            dest_offset,
-        }
+        MapFragment::new(source_start, source_length, dest_offset)
     }
 }
 
@@ -23,7 +20,7 @@ impl Map {
     #[allow(dead_code)]
     fn parse_from_str(input: &str) -> Self {
         let fragments = input.lines().map(MapFragment::parse_from_str).collect();
-        Self(fragments)
+        Map::new(fragments)
     }
 }
 
@@ -105,7 +102,7 @@ impl MapSet {
         }
         maps.push(Map(current_map_frags));
 
-        Self { seeds, maps }
+        MapSet::new(seeds, maps)
     }
 }
 
@@ -119,10 +116,7 @@ mod tests {
 
         assert_eq!(
             MapFragment::parse_from_str(input),
-            MapFragment {
-                source: (98..100),
-                dest_offset: 50,
-            }
+            MapFragment::new(98, 2, 50)
         );
     }
 
@@ -133,15 +127,9 @@ mod tests {
 
         assert_eq!(
             Map::parse_from_str(input),
-            Map(vec![
-                MapFragment {
-                    source: (98..100),
-                    dest_offset: 50,
-                },
-                MapFragment {
-                    source: (50..98),
-                    dest_offset: 52,
-                }
+            Map::new(vec![
+                MapFragment::new(98, 2, 50),
+                MapFragment::new(50, 48, 52),
             ])
         );
     }
@@ -177,31 +165,19 @@ mod tests {
 
         assert_eq!(
             MapSet::parse_from_str(input, SeedParseStrategy::IndividualSeeds),
-            MapSet {
-                seeds: vec![79..80, 14..15, 55..56, 13..14],
-                maps: vec![
-                    Map(vec![
-                        MapFragment {
-                            source: (98..100),
-                            dest_offset: 50,
-                        },
-                        MapFragment {
-                            source: (50..98),
-                            dest_offset: 52,
-                        }
+            MapSet::new(
+                vec![79..80, 14..15, 55..56, 13..14],
+                vec![
+                    Map::new(vec![
+                        MapFragment::new(98, 2, 50),
+                        MapFragment::new(50, 48, 52),
                     ]),
-                    Map(vec![
-                        MapFragment {
-                            source: (15..52),
-                            dest_offset: 0,
-                        },
-                        MapFragment {
-                            source: (52..54),
-                            dest_offset: 37,
-                        }
+                    Map::new(vec![
+                        MapFragment::new(15, 37, 0),
+                        MapFragment::new(52, 2, 37),
                     ]),
                 ]
-            }
+            )
         );
     }
 
@@ -219,31 +195,19 @@ mod tests {
 
         assert_eq!(
             MapSet::parse_from_str(input, SeedParseStrategy::PairedRanges),
-            MapSet {
-                seeds: vec![79..93, 55..68],
-                maps: vec![
-                    Map(vec![
-                        MapFragment {
-                            source: (98..100),
-                            dest_offset: 50,
-                        },
-                        MapFragment {
-                            source: (50..98),
-                            dest_offset: 52,
-                        }
+            MapSet::new(
+                vec![79..93, 55..68],
+                vec![
+                    Map::new(vec![
+                        MapFragment::new(98, 2, 50),
+                        MapFragment::new(50, 48, 52),
                     ]),
-                    Map(vec![
-                        MapFragment {
-                            source: (15..52),
-                            dest_offset: 0,
-                        },
-                        MapFragment {
-                            source: (52..54),
-                            dest_offset: 37,
-                        }
+                    Map::new(vec![
+                        MapFragment::new(15, 37, 0),
+                        MapFragment::new(52, 2, 37),
                     ]),
                 ]
-            }
+            ),
         );
     }
 }

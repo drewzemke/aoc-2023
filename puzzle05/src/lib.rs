@@ -11,6 +11,13 @@ struct MapFragment {
 }
 
 impl MapFragment {
+    pub fn new(source_start: u64, source_length: u64, dest_offset: u64) -> Self {
+        Self {
+            source: (source_start..source_start + source_length),
+            dest_offset,
+        }
+    }
+
     /// Computes the result of applying this fragment to an input value if the value
     /// is contained within its domain, and returns `None` otherwise.
     pub fn compute(&self, input: u64) -> Option<u64> {
@@ -26,6 +33,10 @@ impl MapFragment {
 struct Map(Vec<MapFragment>);
 
 impl Map {
+    pub fn new(fragments: Vec<MapFragment>) -> Self {
+        Self(fragments)
+    }
+
     /// Computes the result of applying this map to an input value by using the
     /// first fragment that contains the input in its domain. If no matching fragment is found,
     /// the input value is returned.
@@ -44,6 +55,10 @@ struct MapSet {
 }
 
 impl MapSet {
+    pub fn new(seeds: Vec<Range<u64>>, maps: Vec<Map>) -> Self {
+        Self { seeds, maps }
+    }
+
     pub fn seed_outputs(&self) -> Vec<u64> {
         self.seeds
             .iter()
