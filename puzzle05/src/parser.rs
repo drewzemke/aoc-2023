@@ -7,9 +7,9 @@ impl MapFragment {
     pub fn parse_from_str(input: &str) -> Self {
         let mut number_strs = input.split_whitespace();
 
-        let dest_offset = number_strs.next().unwrap().parse::<u64>().unwrap();
-        let source_start = number_strs.next().unwrap().parse::<u64>().unwrap();
-        let source_length = number_strs.next().unwrap().parse::<u64>().unwrap();
+        let dest_offset = number_strs.next().unwrap().parse::<i64>().unwrap();
+        let source_start = number_strs.next().unwrap().parse::<i64>().unwrap();
+        let source_length = number_strs.next().unwrap().parse::<i64>().unwrap();
 
         MapFragment::new(source_start, source_length, dest_offset)
     }
@@ -31,20 +31,20 @@ pub enum SeedParseStrategy {
 
 impl MapSet {
     /// Assumes the input contains the prefix "seeds: " followed by a list of whitespace-separated values.
-    fn parse_individual_seeds(input: &str) -> Vec<Range<u64>> {
+    fn parse_individual_seeds(input: &str) -> Vec<Range<i64>> {
         input
             .strip_prefix("seeds: ")
             .unwrap()
             .split_whitespace()
             .map(|s| {
-                let start = s.parse::<u64>().unwrap();
+                let start = s.parse::<i64>().unwrap();
                 start..start + 1
             })
             .collect()
     }
 
     /// Assumes the input contains the prefix "seeds: " followed by a list of whitespace-separated values.
-    fn parse_seed_range_pairs(input: &str) -> Vec<Range<u64>> {
+    fn parse_seed_range_pairs(input: &str) -> Vec<Range<i64>> {
         input
             .strip_prefix("seeds: ")
             .unwrap()
@@ -53,8 +53,8 @@ impl MapSet {
             .chunks_exact(2)
             .map(|chunk| match chunk {
                 [s, t] => {
-                    let start = s.parse::<u64>().unwrap();
-                    let length = t.parse::<u64>().unwrap();
+                    let start = s.parse::<i64>().unwrap();
+                    let length = t.parse::<i64>().unwrap();
                     start..start + length
                 }
                 _ => unreachable!(),
