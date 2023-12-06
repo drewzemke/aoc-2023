@@ -1,4 +1,4 @@
-use crate::MapSet;
+use crate::{parser::SeedParseStrategy, MapSet};
 use common::puzzle::PuzzlePart;
 
 pub struct Puzzle05a {}
@@ -9,8 +9,7 @@ impl PuzzlePart for Puzzle05a {
     }
 
     fn solve(input: &str) -> String {
-        let map_set = MapSet::parse_from_str(input);
-
+        let map_set = MapSet::parse_from_str(input, SeedParseStrategy::IndividualSeeds);
         map_set.seed_outputs().iter().min().unwrap().to_string()
     }
 }

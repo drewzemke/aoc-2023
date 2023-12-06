@@ -39,7 +39,7 @@ impl Map {
 
 #[derive(Debug, PartialEq, Eq)]
 struct MapSet {
-    seeds: Vec<u64>,
+    seeds: Vec<Range<u64>>,
     maps: Vec<Map>,
 }
 
@@ -47,10 +47,11 @@ impl MapSet {
     pub fn seed_outputs(&self) -> Vec<u64> {
         self.seeds
             .iter()
-            .map(|seed| {
-                self.maps
-                    .iter()
-                    .fold(*seed, |value, map| map.compute(value))
+            .flat_map(|seed_range| {
+                // println!("processing seed range: {seed_range:?}");
+                seed_range
+                    .clone()
+                    .map(|seed| self.maps.iter().fold(seed, |value, map| map.compute(value)))
             })
             .collect()
     }
@@ -106,10 +107,10 @@ mod tests {
         let map2 = Map(vec![fragment2]);
 
         let map_set = MapSet {
-            seeds: vec![60, 0],
+            seeds: vec![(60..62), (0..1)],
             maps: vec![map1, map2],
         };
 
-        assert_eq!(map_set.seed_outputs(), vec![32, 0]);
+        assert_eq!(map_set.seed_outputs(), vec![32, 33, 0]);
     }
 }

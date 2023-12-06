@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use crate::{Map, MapFragment, MapSet};
 
 impl MapFragment {
@@ -25,23 +27,57 @@ impl Map {
     }
 }
 
+pub enum SeedParseStrategy {
+    IndividualSeeds,
+    PairedRanges,
+}
+
 impl MapSet {
     /// Assumes the input contains the prefix "seeds: " followed by a list of whitespace-separated values.
-    fn parse_seeds_line(input: &str) -> Vec<u64> {
+    fn parse_individual_seeds(input: &str) -> Vec<Range<u64>> {
         input
             .strip_prefix("seeds: ")
             .unwrap()
             .split_whitespace()
-            .map(|s| s.parse::<u64>().unwrap())
+            .map(|s| {
+                let start = s.parse::<u64>().unwrap();
+                start..start + 1
+            })
+            .collect()
+    }
+
+    /// Assumes the input contains the prefix "seeds: " followed by a list of whitespace-separated values.
+    fn parse_seed_range_pairs(input: &str) -> Vec<Range<u64>> {
+        input
+            .strip_prefix("seeds: ")
+            .unwrap()
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .chunks_exact(2)
+            .map(|chunk| match chunk {
+                [s, t] => {
+                    let start = s.parse::<u64>().unwrap();
+                    let length = t.parse::<u64>().unwrap();
+                    start..start + length
+                }
+                _ => unreachable!(),
+            })
             .collect()
     }
 
     /// Assumes that the input is in the form of the entire input for this file:
     /// - starts with a "seed: " line
     /// - remainder consists of blocks each with a header line, the rest of which describes a map
-    pub fn parse_from_str(input: &str) -> Self {
+    pub fn parse_from_str(input: &str, seed_strategy: SeedParseStrategy) -> Self {
         let mut lines = input.lines();
-        let seeds = MapSet::parse_seeds_line(lines.next().unwrap());
+        let seeds = match seed_strategy {
+            SeedParseStrategy::IndividualSeeds => {
+                MapSet::parse_individual_seeds(lines.next().unwrap())
+            }
+            SeedParseStrategy::PairedRanges => {
+                MapSet::parse_seed_range_pairs(lines.next().unwrap())
+            }
+        };
 
         // skip the next empty line
         let lines = lines.skip(1);
@@ -75,7 +111,7 @@ impl MapSet {
 
 #[cfg(test)]
 mod tests {
-    use crate::{Map, MapFragment, MapSet};
+    use crate::{parser::SeedParseStrategy, Map, MapFragment, MapSet};
 
     #[test]
     fn test_parse_fragment() {
@@ -111,14 +147,24 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_seeds() {
+    fn test_parse_individual_seeds() {
         let input = "seeds: 79 14 55 13";
 
-        assert_eq!(MapSet::parse_seeds_line(input), vec![79, 14, 55, 13]);
+        assert_eq!(
+            MapSet::parse_individual_seeds(input),
+            vec![79..80, 14..15, 55..56, 13..14]
+        );
     }
 
     #[test]
-    fn test_parse_map_set() {
+    fn test_parse_seed_ranges() {
+        let input = "seeds: 79 14 55 13";
+
+        assert_eq!(MapSet::parse_seed_range_pairs(input), vec![79..93, 55..68]);
+    }
+
+    #[test]
+    fn test_parse_map_set_individual_seeds() {
         let input = r"seeds: 79 14 55 13
 
             seed-to-soil map:
@@ -130,9 +176,51 @@ mod tests {
             37 52 2";
 
         assert_eq!(
-            MapSet::parse_from_str(input),
+            MapSet::parse_from_str(input, SeedParseStrategy::IndividualSeeds),
             MapSet {
-                seeds: vec![79, 14, 55, 13],
+                seeds: vec![79..80, 14..15, 55..56, 13..14],
+                maps: vec![
+                    Map(vec![
+                        MapFragment {
+                            source: (98..100),
+                            dest_offset: 50,
+                        },
+                        MapFragment {
+                            source: (50..98),
+                            dest_offset: 52,
+                        }
+                    ]),
+                    Map(vec![
+                        MapFragment {
+                            source: (15..52),
+                            dest_offset: 0,
+                        },
+                        MapFragment {
+                            source: (52..54),
+                            dest_offset: 37,
+                        }
+                    ]),
+                ]
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_map_set_paired_seeds() {
+        let input = r"seeds: 79 14 55 13
+
+            seed-to-soil map:
+            50 98 2
+            52 50 48
+
+            soil-to-fertilizer map:
+            0 15 37
+            37 52 2";
+
+        assert_eq!(
+            MapSet::parse_from_str(input, SeedParseStrategy::PairedRanges),
+            MapSet {
+                seeds: vec![79..93, 55..68],
                 maps: vec![
                     Map(vec![
                         MapFragment {
