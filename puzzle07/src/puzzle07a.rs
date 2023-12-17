@@ -20,7 +20,7 @@ impl PuzzlePart for Puzzle07a {
             .collect();
 
         hands.sort_by(|(hand1, rep1, _), (hand2, rep2, _)| {
-            let rank_ord = rep2.ranking().cmp(&rep1.ranking());
+            let rank_ord = rep1.ranking().cmp(&rep2.ranking());
             match rank_ord {
                 std::cmp::Ordering::Equal => hand1.0.cmp(&hand2.0),
                 _ => rank_ord,
