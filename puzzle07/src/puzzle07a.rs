@@ -1,6 +1,6 @@
 use common::puzzle::PuzzlePart;
 
-use crate::{parser::parse_line, Hand};
+use crate::{parser::parse_line, Hand, HandRep};
 
 pub struct Puzzle07a {}
 
@@ -10,13 +10,27 @@ impl PuzzlePart for Puzzle07a {
     }
 
     fn solve(input: &str) -> String {
-        let mut hands: Vec<(Hand, u32)> = input.lines().map(parse_line).collect();
-        hands.sort_by(|(hand1, _), (hand2, _)| hand2.cmp(hand1));
+        let mut hands: Vec<(Hand, HandRep, u32)> = input
+            .lines()
+            .map(parse_line)
+            .map(|(hand, num)| {
+                let rep = hand.rep();
+                (hand, rep, num)
+            })
+            .collect();
+
+        hands.sort_by(|(hand1, rep1, _), (hand2, rep2, _)| {
+            let rank_ord = rep2.ranking().cmp(&rep1.ranking());
+            match rank_ord {
+                std::cmp::Ordering::Equal => hand1.0.cmp(&hand2.0),
+                _ => rank_ord,
+            }
+        });
 
         hands
             .iter()
             .enumerate()
-            .map(|(rank, (_, num))| (rank as u32 + 1) * *num)
+            .map(|(rank, (_, _, num))| (rank as u32 + 1) * *num)
             .sum::<u32>()
             .to_string()
     }
