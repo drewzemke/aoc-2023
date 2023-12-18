@@ -169,7 +169,7 @@ impl HandRep {
         match self.0.first().unwrap() {
             (_, 5) => HandRanking::FiveOfAKind,
 
-            (Card::Jack, 4) => HandRanking::FourOfAKind,
+            (Card::Jack, 4) => HandRanking::FiveOfAKind,
             (_, 4) => match self.0.get(1).unwrap() {
                 (Card::Jack, _) => HandRanking::FiveOfAKind,
                 _ => HandRanking::FourOfAKind,
@@ -197,7 +197,10 @@ impl HandRep {
             (_, 2) => match self.0.get(1).unwrap() {
                 (Card::Jack, 2) => HandRanking::FourOfAKind,
                 (Card::Jack, 1) => HandRanking::ThreeOfAKind,
-                (_, 2) => HandRanking::TwoPair,
+                (_, 2) => match self.0.get(2).unwrap() {
+                    (Card::Jack, 1) => HandRanking::FullHouse,
+                    _ => HandRanking::TwoPair,
+                },
                 (_, 1) => match self.0.get(2).unwrap() {
                     (Card::Jack, 1) => HandRanking::ThreeOfAKind,
                     (_, 1) => match self.0.get(3).unwrap() {
@@ -208,7 +211,13 @@ impl HandRep {
                 },
                 _ => panic!("invalid hand rep"),
             },
-            (_, 1) => HandRanking::HighCard,
+            (_, 1) => {
+                if self.0.iter().any(|(card, _)| card == &Card::Jack) {
+                    HandRanking::Pair
+                } else {
+                    HandRanking::HighCard
+                }
+            }
             _ => panic!("invalid hand rep"),
         }
     }
@@ -384,5 +393,35 @@ mod hand_rep_rank_tests {
         ]);
         let rep = hand.rep();
         assert_eq!(rep.ranking_with_jokers(), HandRanking::ThreeOfAKind);
+
+        let hand = Hand([
+            Card::Jack,
+            Card::Number(5),
+            Card::Queen,
+            Card::Number(8),
+            Card::Ace,
+        ]);
+        let rep = hand.rep();
+        assert_eq!(rep.ranking_with_jokers(), HandRanking::Pair);
+
+        let hand = Hand([
+            Card::Jack,
+            Card::Number(2),
+            Card::Number(2),
+            Card::Number(10),
+            Card::Number(10),
+        ]);
+        let rep = hand.rep();
+        assert_eq!(rep.ranking_with_jokers(), HandRanking::FullHouse);
+
+        let hand = Hand([
+            Card::Jack,
+            Card::Jack,
+            Card::Number(8),
+            Card::Jack,
+            Card::Jack,
+        ]);
+        let rep = hand.rep();
+        assert_eq!(rep.ranking_with_jokers(), HandRanking::FiveOfAKind);
     }
 }

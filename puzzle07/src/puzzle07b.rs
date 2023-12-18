@@ -25,7 +25,6 @@ impl PuzzlePart for Puzzle07b {
             let rank_ord = rep1.ranking_with_jokers().cmp(&rep2.ranking_with_jokers());
 
             // if the hands have the same rank, compare them card-by-card, treating Jacks as the lowest card
-            // NOTE: it's possible that I'm supposed to swap `hand1` and `hand2` below
             match rank_ord {
                 Ordering::Equal => hand1
                     .0
