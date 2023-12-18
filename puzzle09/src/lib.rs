@@ -35,10 +35,16 @@ impl DiscreteFn {
         differences
     }
 
-    pub fn extrapolate(&self) -> i32 {
+    pub fn extrapolate_forwards(&self) -> i32 {
         self.all_differences()
             .iter()
             .rfold(0, |value, func| value + func.0.last().unwrap())
+    }
+
+    pub fn extrapolate_backwards(&self) -> i32 {
+        self.all_differences()
+            .iter()
+            .rfold(0, |value, func| func.0.first().unwrap() - value)
     }
 }
 
@@ -78,14 +84,26 @@ mod tests {
     }
 
     #[test]
-    fn test_extrapolate() {
+    fn test_extrapolate_forwards() {
         let func = DiscreteFn(vec![0, 3, 6, 9, 12, 15]);
-        assert_eq!(func.extrapolate(), 18);
+        assert_eq!(func.extrapolate_forwards(), 18);
 
         let func = DiscreteFn(vec![1, 3, 6, 10, 15, 21]);
-        assert_eq!(func.extrapolate(), 28);
+        assert_eq!(func.extrapolate_forwards(), 28);
 
         let func = DiscreteFn(vec![10, 13, 16, 21, 30, 45]);
-        assert_eq!(func.extrapolate(), 68);
+        assert_eq!(func.extrapolate_forwards(), 68);
+    }
+
+    #[test]
+    fn test_extrapolate_backwards() {
+        let func = DiscreteFn(vec![0, 3, 6, 9, 12, 15]);
+        assert_eq!(func.extrapolate_backwards(), -3);
+
+        let func = DiscreteFn(vec![1, 3, 6, 10, 15, 21]);
+        assert_eq!(func.extrapolate_backwards(), 0);
+
+        let func = DiscreteFn(vec![10, 13, 16, 21, 30, 45]);
+        assert_eq!(func.extrapolate_backwards(), 5);
     }
 }

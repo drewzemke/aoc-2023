@@ -12,7 +12,7 @@ impl PuzzlePart for Puzzle09a {
         input
             .lines()
             .map(parse_line)
-            .map(|func| func.extrapolate())
+            .map(|func| func.extrapolate_forwards())
             .sum::<i32>()
             .to_string()
     }
