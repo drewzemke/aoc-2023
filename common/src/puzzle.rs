@@ -41,20 +41,24 @@ pub trait Puzzle {
         let input = if args.use_example { example } else { input };
 
         match args.part {
-            Some(PuzzlePartName::A) => Self::process::<Self::PartA>("A", input),
-            Some(PuzzlePartName::B) => Self::process::<Self::PartB>("B", input),
+            Some(PuzzlePartName::A) => Self::process::<Self::PartA>("A", input, args.use_example),
+            Some(PuzzlePartName::B) => Self::process::<Self::PartB>("B", input, args.use_example),
             None => {
-                Self::process::<Self::PartA>("A", input);
+                Self::process::<Self::PartA>("A", input, args.use_example);
                 println!("{}", "---".dimmed());
-                Self::process::<Self::PartB>("B", input);
+                Self::process::<Self::PartB>("B", input, args.use_example);
             }
         };
     }
 
-    fn process<P: PuzzlePart>(part_name: &str, input: &str) {
-        let puzzle = format!("Puzzle {}", Self::name()).blue();
-        let part = format!("Part {part_name}").blue();
-        println!("Solving {puzzle} {part}:");
+    fn process<P: PuzzlePart>(part_name: &str, input: &str, is_example: bool) {
+        let puzzle_name = format!("Puzzle {} Part {part_name}", Self::name()).blue();
+        let example_note = if is_example {
+            format!(" ({})", "example input".yellow())
+        } else {
+            "".into()
+        };
+        println!("Solving {puzzle_name}{example_note}:");
 
         let description = format!("\"{}\"", <P as PuzzlePart>::description()).dimmed();
         println!("{description}");
