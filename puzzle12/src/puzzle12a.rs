@@ -1,6 +1,5 @@
-use common::puzzle::PuzzlePart;
-
 use crate::Schematic;
+use common::puzzle::PuzzlePart;
 
 pub struct Puzzle12a {}
 
@@ -13,8 +12,8 @@ impl PuzzlePart for Puzzle12a {
         input
             .lines()
             .map(Schematic::from)
-            .map(|schematic| schematic.count_arrangements())
-            .sum::<u32>()
+            .map(|schematic| schematic.count_arrangements(&mut vec![]))
+            .sum::<u64>()
             .to_string()
     }
 }

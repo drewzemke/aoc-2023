@@ -19,17 +19,22 @@ impl SpringState {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct SpringRow(Vec<SpringState>);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct DamagedGroups(Vec<usize>);
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Schematic(SpringRow, DamagedGroups);
 
 impl Schematic {
-    pub fn count_arrangements(&self) -> u32 {
+    pub fn count_arrangements(&self, memory: &mut Vec<(Schematic, u64)>) -> u64 {
+        // did we already solve this problem before?
+        if let Some((_, num)) = memory.iter().find(|(schematic, _)| self == schematic) {
+            return *num;
+        }
+
         let Schematic(SpringRow(springs), DamagedGroups(groups)) = self;
 
         // if there are no damaged groups, and all of the springs are not explicitly damaged,
@@ -72,7 +77,7 @@ impl Schematic {
                         SpringRow(springs[next_spring_slice_start..].into()),
                         DamagedGroups(groups[1..].into()),
                     )
-                    .count_arrangements();
+                    .count_arrangements(memory);
                 }
             }
 
@@ -83,6 +88,28 @@ impl Schematic {
             }
         }
 
+        // memoize me captain!
+        memory.push((self.clone(), arrangements));
         arrangements
+    }
+
+    /// Replaces a schematic's spring row and damaged groups with five copies of themselves
+    /// (The copies of the spring row get Unknown springs placed in between them.)
+    pub fn unfold(&self) -> Self {
+        let mut springs = self.0 .0.clone();
+        springs.push(SpringState::Unknown);
+        let len = springs.len();
+        let spring_row = SpringRow(springs.into_iter().cycle().take(len * 5 - 1).collect());
+
+        let groups = self.1 .0.clone();
+        let damageds_groups = DamagedGroups(
+            groups
+                .into_iter()
+                .cycle()
+                .take(self.1 .0.len() * 5)
+                .collect(),
+        );
+
+        Self(spring_row, damageds_groups)
     }
 }
