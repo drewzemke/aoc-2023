@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use colored::Colorize;
 
 #[derive(ValueEnum, Clone)]
 enum PuzzlePartName {
@@ -44,16 +45,21 @@ pub trait Puzzle {
             Some(PuzzlePartName::B) => Self::process::<Self::PartB>("B", input),
             None => {
                 Self::process::<Self::PartA>("A", input);
-                println!("---");
+                println!("{}", "---".dimmed());
                 Self::process::<Self::PartB>("B", input);
             }
         };
     }
 
     fn process<P: PuzzlePart>(part_name: &str, input: &str) {
-        println!("Solving Puzzle {} Part {part_name}:", Self::name());
-        println!("\"{}\"", <P as PuzzlePart>::description());
+        let puzzle = format!("Puzzle {}", Self::name()).blue();
+        let part = format!("Part {part_name}").blue();
+        println!("Solving {puzzle} {part}:");
+
+        let description = format!("\"{}\"", <P as PuzzlePart>::description()).dimmed();
+        println!("{description}");
+
         let res = <P as PuzzlePart>::solve(input);
-        println!("Solution: {res}")
+        println!("Solution: {}", res.magenta().bold());
     }
 }
