@@ -68,7 +68,12 @@ impl Universe {
 
     /// Computes the distance of the "shortest path" between two galaxies _after_
     /// all of the rows and columns without galaxies have expanded
-    pub fn expanded_distance(&self, galaxy1: &Galaxy, galaxy2: &Galaxy) -> usize {
+    pub fn expanded_distance(
+        &self,
+        galaxy1: &Galaxy,
+        galaxy2: &Galaxy,
+        expand_factor: usize,
+    ) -> usize {
         let Galaxy(row1, col1) = galaxy1;
         let Galaxy(row2, col2) = galaxy2;
 
@@ -76,17 +81,19 @@ impl Universe {
         let col_range = if col1 < col2 { col1..col2 } else { col2..col1 };
 
         let horizontal_dist = col_range.end - col_range.start
-            + self
-                .empty_cols
-                .iter()
-                .filter(|col| col_range.contains(col))
-                .count();
+            + (expand_factor - 1)
+                * self
+                    .empty_cols
+                    .iter()
+                    .filter(|col| col_range.contains(col))
+                    .count();
         let vertical_dist = row_range.end - row_range.start
-            + self
-                .empty_rows
-                .iter()
-                .filter(|row| row_range.contains(row))
-                .count();
+            + (expand_factor - 1)
+                * self
+                    .empty_rows
+                    .iter()
+                    .filter(|row| row_range.contains(row))
+                    .count();
 
         horizontal_dist + vertical_dist
     }
