@@ -1,4 +1,4 @@
-use crate::Platform;
+use crate::{Direction, Platform};
 use common::puzzle::PuzzlePart;
 
 pub struct Puzzle14a {}
@@ -11,7 +11,7 @@ impl PuzzlePart for Puzzle14a {
     fn solve(input: &str) -> String {
         let mut platform = Platform::from(input);
 
-        platform.tilt_north();
+        platform.tilt(Direction::North);
 
         platform.north_load().to_string()
     }

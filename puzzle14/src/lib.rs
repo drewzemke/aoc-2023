@@ -46,6 +46,13 @@ impl From<&PlatformColumns> for PlatformRows {
     }
 }
 
+pub enum Direction {
+    North,
+    South,
+    East,
+    West,
+}
+
 impl Platform {
     fn swap_rep(&mut self) {
         self.0 = match self.0 {
@@ -75,23 +82,69 @@ impl Platform {
             .sum::<usize>()
     }
 
-    pub fn tilt_north(&mut self) {
-        // if this platform isn't in column rep, swap to that
-        let cols = match &mut self.0 {
-            PlatformRep::Columns(cols) => cols,
-            PlatformRep::Rows(_) => {
-                self.swap_rep();
-                return self.tilt_north();
-            }
+    pub fn tilt(&mut self, direction: Direction) {
+        // use the representation most amenable to tilting in the given direction
+        match &mut self.0 {
+            PlatformRep::Columns(cols) => match direction {
+                Direction::North => cols.tilt_north(),
+                Direction::South => cols.tilt_south(),
+                direction => {
+                    self.swap_rep();
+                    self.tilt(direction);
+                }
+            },
+            PlatformRep::Rows(rows) => match direction {
+                Direction::East => rows.tilt_east(),
+                Direction::West => rows.tilt_west(),
+                direction => {
+                    self.swap_rep();
+                    self.tilt(direction);
+                }
+            },
         };
+    }
+}
 
+impl PlatformColumns {
+    pub fn tilt_north(&mut self) {
         // operate on each column individually
         // break it up into chunks based on the stationary rocks in it
         // within each chunk, move all of the rolling rocks to the front
-        for col in &mut cols.0 {
+        for col in &mut self.0 {
             for chunk in col.split_mut(|element| *element == Element::StationaryRock) {
                 // the derived order on `Element` places `RollingRock` before `Nothing`
                 chunk.sort();
+            }
+        }
+    }
+
+    pub fn tilt_south(&mut self) {
+        // same as above, but opposite
+        for col in &mut self.0 {
+            for chunk in col.split_mut(|element| *element == Element::StationaryRock) {
+                // the derived order on `Element` places `RollingRock` before `Nothing`, so
+                // do the opposite of that
+                chunk.sort_by(|el1, el2| el2.cmp(el1));
+            }
+        }
+    }
+}
+
+impl PlatformRows {
+    pub fn tilt_west(&mut self) {
+        // same as tilt_north, but moving horizontally
+        for row in &mut self.0 {
+            for chunk in row.split_mut(|element| *element == Element::StationaryRock) {
+                chunk.sort();
+            }
+        }
+    }
+
+    pub fn tilt_east(&mut self) {
+        // yeah
+        for row in &mut self.0 {
+            for chunk in row.split_mut(|element| *element == Element::StationaryRock) {
+                chunk.sort_by(|el1, el2| el2.cmp(el1));
             }
         }
     }
@@ -169,7 +222,7 @@ mod tests {
             ],
         ])));
 
-        platform.tilt_north();
+        platform.tilt(Direction::North);
 
         assert_eq!(
             platform,
