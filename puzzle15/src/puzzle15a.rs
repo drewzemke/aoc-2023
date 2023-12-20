@@ -13,7 +13,7 @@ impl PuzzlePart for Puzzle15a {
             .trim()
             .split(',')
             .map(Hash::hash)
-            .sum::<u32>()
+            .sum::<usize>()
             .to_string()
     }
 }
