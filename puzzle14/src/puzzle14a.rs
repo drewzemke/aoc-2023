@@ -1,6 +1,5 @@
+use crate::Platform;
 use common::puzzle::PuzzlePart;
-
-use crate::{PlatformColumns, PlatformRows};
 
 pub struct Puzzle14a {}
 
@@ -10,12 +9,10 @@ impl PuzzlePart for Puzzle14a {
     }
 
     fn solve(input: &str) -> String {
-        let rows = PlatformRows::from(input);
-        let mut cols: PlatformColumns = rows.into();
+        let mut platform = Platform::from(input);
 
-        cols.tilt_north();
+        platform.tilt_north();
 
-        let rows: PlatformRows = cols.into();
-        rows.north_load().to_string()
+        platform.north_load().to_string()
     }
 }
