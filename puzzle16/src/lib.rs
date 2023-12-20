@@ -86,6 +86,14 @@ pub struct EnergizedTile {
 pub struct TileGrid(Vec<Vec<EnergizedTile>>);
 
 impl TileGrid {
+    pub fn width(&self) -> usize {
+        self.0[0].len()
+    }
+
+    pub fn height(&self) -> usize {
+        self.0.len()
+    }
+
     fn get_mut(&mut self, (row_idx, col_idx): (usize, usize)) -> Option<&mut EnergizedTile> {
         self.0.get_mut(row_idx)?.get_mut(col_idx)
     }
@@ -126,5 +134,13 @@ impl TileGrid {
                     .sum::<usize>()
             })
             .sum::<usize>()
+    }
+
+    pub fn reset(&mut self) {
+        for row in &mut self.0 {
+            for tile in row {
+                tile.beams = vec![]
+            }
+        }
     }
 }
