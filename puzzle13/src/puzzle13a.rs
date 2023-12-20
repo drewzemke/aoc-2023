@@ -14,12 +14,12 @@ impl PuzzlePart for Puzzle13a {
             .map(Pattern::from)
             .map(|pattern| {
                 for idx in 0..pattern.width() - 1 {
-                    if pattern.is_symmetric_across_vert(idx) {
+                    if pattern.is_symmetric_across_vert(idx, 0) {
                         return idx + 1;
                     }
                 }
                 for idx in 0..pattern.height() - 1 {
-                    if pattern.is_symmetric_across_horiz(idx) {
+                    if pattern.is_symmetric_across_horiz(idx, 0) {
                         return 100 * (idx + 1);
                     }
                 }

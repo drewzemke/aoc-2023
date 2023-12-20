@@ -46,47 +46,57 @@ impl Pattern {
 
     /// Checks if a pattern is symmetric across the _vertical_ line
     /// at a given position.
-    fn is_symmetric_across_vert(&self, axis: usize) -> bool {
+    fn is_symmetric_across_vert(&self, axis: usize, smudge_target: u32) -> bool {
         // check corresponding reflected columns starting at
         // the axis of symmetry. stop once we reach one of the
         // edges of the pattern
         let mut offset = 0;
+        let mut smudges = 0;
 
         while offset <= axis && axis + offset + 1 < self.width() {
             let left_col_idx = axis - offset;
             let right_col_idx = axis + offset + 1;
 
-            if !(0..self.height())
-                .all(|row_idx| self.get(row_idx, right_col_idx) == self.get(row_idx, left_col_idx))
-            {
-                return false;
+            for row_idx in 0..self.height() {
+                if self.get(row_idx, right_col_idx) != self.get(row_idx, left_col_idx) {
+                    if smudges < smudge_target {
+                        smudges += 1
+                    } else {
+                        return false;
+                    }
+                }
             }
 
             offset += 1
         }
 
-        true
+        smudges == smudge_target
     }
 
-    fn is_symmetric_across_horiz(&self, axis: usize) -> bool {
+    fn is_symmetric_across_horiz(&self, axis: usize, smudge_target: u32) -> bool {
         // check corresponding reflected rows starting at
         // the axis of symmetry. stop once we reach the top or bottom
         // edges of the pattern
         let mut offset = 0;
+        let mut smudges = 0;
 
         while offset <= axis && axis + offset + 1 < self.height() {
             let left_row_idx = axis - offset;
             let right_row_idx = axis + offset + 1;
 
-            if !(0..self.width())
-                .all(|col_idx| self.get(right_row_idx, col_idx) == self.get(left_row_idx, col_idx))
-            {
-                return false;
+            for col_idx in 0..self.width() {
+                if self.get(right_row_idx, col_idx) != self.get(left_row_idx, col_idx) {
+                    if smudges < smudge_target {
+                        smudges += 1
+                    } else {
+                        return false;
+                    }
+                }
             }
 
             offset += 1
         }
 
-        true
+        smudges == smudge_target
     }
 }
