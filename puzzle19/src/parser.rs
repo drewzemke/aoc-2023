@@ -1,6 +1,4 @@
-use crate::{
-    Category, ComparisonRule, DirectRule, Operator, PartRating, Rule, State, System, Workflow,
-};
+use crate::{Category, ComparisonRule, DirectRule, Operator, Part, Rule, State, System, Workflow};
 
 impl From<char> for Category {
     fn from(c: char) -> Self {
@@ -14,14 +12,14 @@ impl From<char> for Category {
     }
 }
 
-impl From<&str> for PartRating {
+impl From<&str> for Part {
     fn from(input: &str) -> Self {
         // starts/ends with a '{' and '}'
         // then a comma-separated list that's always in the
         // order x=???, m=???, a=???, s=???
         let mut ratings = input[1..input.len() - 1]
             .split(',')
-            .map(|assignment| assignment[2..].parse::<u32>().unwrap());
+            .map(|assignment| assignment[2..].parse::<u64>().unwrap());
         Self {
             x: ratings.next().unwrap(),
             m: ratings.next().unwrap(),
@@ -41,7 +39,7 @@ impl<'a> From<&'a str> for Rule<'a> {
             } else {
                 Operator::LessThan
             };
-            let value = comparison[2..].parse::<u32>().unwrap();
+            let value = comparison[2..].parse::<u64>().unwrap();
             let destination = match name {
                 "A" => State::Accept,
                 "R" => State::Reject,
@@ -98,11 +96,11 @@ mod tests {
     #[test]
     fn test_parse_part_rating() {
         let input = "{x=787,m=2655,a=1222,s=2876}";
-        let part = PartRating::from(input);
+        let part = Part::from(input);
 
         assert_eq!(
             part,
-            PartRating {
+            Part {
                 x: 787,
                 m: 2655,
                 a: 1222,
